@@ -11,6 +11,8 @@ public class JumperAgent : Agent
     private bool hasJumped = false;
     private bool NegativeReceived = false;
     private bool Passed = false;
+    private bool goodJumpTime = false;
+    private bool blockNegative = false;
     public Rigidbody rb;
     public Rigidbody obstacleRb;
 
@@ -31,7 +33,6 @@ public class JumperAgent : Agent
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-
         int jumpAction = actionBuffers.DiscreteActions[0];
 
         if (jumpAction == 1 && !hasJumped)
@@ -40,37 +41,40 @@ public class JumperAgent : Agent
             rb.AddForce(Vector3.up * 5f, ForceMode.VelocityChange);
         } 
 
-        if(hasJumped && !Passed && !NegativeReceived){
+
+        if (hasJumped && goodJumpTime && !Passed)
+        {
+            Debug.Log("Goede jump +");
+            blockNegative = true;
+            AddReward(1.0f);
+            Passed = true;
+        } else if(hasJumped  && !goodJumpTime && !blockNegative &&!NegativeReceived){
             Debug.Log("Slechte jump -");
-            AddReward(-0.1f);
+            AddReward(-0.05f);
             NegativeReceived = true;
         }
-
-        
     }
 
-    public void OnCollisionEnter(Collision collision){
-        if(collision.gameObject.CompareTag("Plane"))
+    public void OnCollisionEnter(Collision other){
+        if(other.gameObject.CompareTag("Plane"))
             {
             //check collision met grond.
             hasJumped = false;
             NegativeReceived = false;
+            blockNegative = false;
             }
 
-        if(collision.gameObject.CompareTag("Obstacle"))
+        if(other.gameObject.CompareTag("Obstacle"))
         {
             //check collision met de obstakel
+            Debug.Log("Obstakel geraakt grote fout");
             AddReward(-1.0f);
-            EndEpisode();
-        }
-        
-    }
+            this.transform.localPosition = new Vector3(0,0.5f,0);
+            this.Obstacle.localPosition = new Vector3(0,0.5f,9);
+            Passed = false;
+            NegativeReceived = false;
+            goodJumpTime = false;            
 
-    public void onTriggerEnter(Collision collision){
-        if(collision.gameObject.CompareTag("UpObstacle")){
-            Debug.Log("Goede jumpppp");
-            AddReward(1.0f);
-            EndEpisode();
         }
     }
 
@@ -86,8 +90,19 @@ public class JumperAgent : Agent
             NegativeReceived = false;
             ObstacleSpeed = Random.Range(4f, 7f);
             obstacleRb.position = new Vector3(0, 0.5f, 9);
+        }
+
+        if (obstacleRb.position.z < 3.4f)
+        {
+            goodJumpTime = true;
             
         }
+
+        if (obstacleRb.position.z < 0.7f)
+        {
+            goodJumpTime = false;            
+        }
+        
 
         if(this.transform.localPosition.y < 0){
             EndEpisode();
