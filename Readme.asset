@@ -1,1 +1,21 @@
+Jumper ML agent 
 
+Deze opdracht is een oefening waarin een ML-Agent leert om te springen over een bewegend obstakel. Het doel is dat de agent leert om op het juiste moment te springen zodat hij het obstakel ontwijkt zonder te vroeg of te laat te springen.
+
+De agent ontvangt observaties over zijn eigen positie en die van het obstakel. Op basis daarvan beslist hij of hij springt of niets doet. Als hij springt wanneer het obstakel zich op de juiste afstand bevindt tussen z = 3.4 en z = 0.7, dan krijgt hij een beloning. Springt hij buiten dat bereik, dan krijgt hij een kleine straf. Als hij botst met het obstakel of als hij van het platform valt dan krijgt hij een grote straf en eindigt de episode.
+
+Aan het begin van elke episode worden de agent en het obstakel terug op hun startpositie geplaatst. De snelheid van het obstakel wordt telkens willekeurig gekozen tussen 4 en 7. De enige actie die de agent kan nemen is springen. Het springen gebeurt met een opwaartse kracht via de Rigidbody.
+
+Alle logica van de agent zit in het script JumperAgent.cs. Hierin staan de observaties, acties, beloningen en de manier waarop botsingen worden afgehandeld. De Update()-methode zorgt ervoor dat het obstakel beweegt en dat de timing voor een goede sprong wordt bijgehouden.
+
+De OnEpisodeBegin methode zet de agent en het obstakel telkens terug op hun startpositie en kiest een willekeurige snelheid voor het obstakel. Dit gebeurt aan het begin van elke episode.
+
+In CollectObservations krijgt de agent informatie over de positie van het obstakel en zijn eigen positie.
+
+In OnActionReceived wordt gekeken of de agent sprong. Als hij wil springt en hij heeft nog niet gesprongen dan springt hij omhoog met een kracht. Daarna wordt gecontroleerd of het obstakel zich binnen de juiste zone bevindt tussen z = 3.4 en z = 0.7. Als dat zo is, krijgt hij een beloning. Als hij te vroeg of te laat springt, krijgt hij een straf. Dit gebeurt maar één keer per sprong.
+
+In OnCollisionEnter wordt er gecheckt of de agent de grond raakt of het obstakel raakt. Als hij op de grond landt, mag hij weer springen. Als hij het obstakel raakt, krijgt hij een grote straf.
+
+De Update methode beweegt het obstakel naar de agent toe. Hierin wordt ook de goede springtijd gecontroleerd: als het obstakel dichterbij komt, wordt goodJumpTime true. Als het obstakel voorbij is, wordt het weer false. Deze vlag wordt gebruikt om te checken of een sprong op tijd was.
+
+Tot slot is er de Heuristic functie. Die wordt gebruikt als je handmatig wilt testen (bijv. door op spatie te drukken om te springen).
